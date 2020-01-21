@@ -1,9 +1,12 @@
+var nickNameCurrent;
 $(document).ready(function(){
     // connect socket
-    var socket = io.connect();
+    var socket = io();
+    // const socket = io('http://localhost')(4200);
     $('#set-nick').submit(function(e){
         // get username login
         var nickName = $('#nick-name').val().trim();
+        nickNameCurrent = nickName;
         // preventDefault không gọi đến submit action form
         	e.preventDefault();
         	// Nếu username trống thì thông báo lỗi chưa điền thông tin tài khoản
@@ -15,10 +18,13 @@ $(document).ready(function(){
             socket.emit('new user', nickName, function(data){
                 if (data){
                     console.log(data);
-
+                    // ẩn form login đi
                     $('#nick-wrap').hide();
-
+                    // hiển thị danh sách chat
                     $('.chat_box').show();
+                    $('.msg_wrap').display = 'block'
+                    $('#username').show();
+                    $('#username').text(nickNameCurrent)
                 }else{
                     $('#nick-error').html('Tai khoan da duoc su dung. Vui long dien tai khoan khac');
                 }
@@ -28,41 +34,46 @@ $(document).ready(function(){
         return false;
     });
 
+// Mở to, thu nhỏ danh sách chat
+    $('.chat_head').click(function(){
+        $('.chat_body').slideToggle('slow');
+    });
+    // Mở to thu nhỏ khung chat
+    $('.msg_head').click(function(){
+        $('.msg_wrap').slideToggle('slow');
+    });
+    // Đóng khung chat
+    $('.close').click(function(){
+        $('.msg_box').hide();
+    });
 
-    // $('.chat_head').click(function(){
-    //     $('.chat_body').slideToggle('slow');
-    // });
-    // $('.msg_head').click(function(){
-    //     $('.msg_wrap').slideToggle('slow');
-    // });
-    // $('.close').click(function(){
-    //     $('.msg_box').hide();
-    // });
 
-
-    // function usernameClick(){
-    //     $('.user').click(function(){
-    //         console.log('Hello');
-    //         console.log($(this).text()); // User name
-    //
-    //         $('.msg_box').show();
-    //         $('#box_name').html($(this).text());
-    //         socket.emit('open-chatbox', $(this).text());
-    //     });
-    // }
+    function usernameClick(){
+        $('.user').click(function(){
+            console.log('Hello');
+            // $(this) chính là $('.user')
+            console.log($(this).text()); // User name
+            $('.msg_box').show();
+            $('#box_name').text($(this).text());
+            socket.emit('open-chatbox', {from: nickNameCurrent, to: $(this).text()});
+        });
+    }
     // usernameClick();
     //
-    // socket.on('usernames', function(data){
-    //     console.log(data);
-    //     var html = '';
-    //     for (i=0; i<data.length; i++){
-    //         html +='<div class="user" name="'+ data[i]+'">'+ data[i]+'</div>';
-    //     }
-    //
-    //     console.log(html);
-    //     $('.chat_body').html(html);
-    //     usernameClick();
-    // });
+
+    // Nhận danh sách các nickname đang online từ server
+    socket.on('usernames', function(data){
+        console.log(nickNameCurrent);
+        data.splice(data.indexOf(nickNameCurrent), 1);
+        var html = '';
+        for (i=0; i<data.length; i++){
+            html +='<div class="user" name="'+ data[i]+'">'+ data[i]+'</div>';
+        }
+
+        // console.log(html);
+        $('.chat_body').html(html);
+        usernameClick();
+    });
     // socket.on('openbox', function(data){
     //     $('.msg_box').show();
     //     $('#box_name').html(data.nick);
@@ -84,28 +95,29 @@ $(document).ready(function(){
 // 			');
 
     // });
-    // $('textarea').keypress(function(e){
-    //     // e.preventDefault();
+    $('.msg_input').keypress(function(e){
+        // e.preventDefault();
+
+        if (e.keyCode == 13) {
+            var msg = $(this).val();
+            $(this).val('');
+            socket.emit('send message', msg, $('#box_name').text());
+            console.log('okokokokokok')
+        }
+    });
     //
-    //     if (e.keyCode == 13) {
-    //         var msg = $(this).val();
-    //         $(this).val('');
-    //         socket.emit('send message', msg, $('#box_name').text());
-    //     }
-    // });
-    //
-    // socket.on('new message', function(data){
-    //
-    //     console.log('Gui tu '+data.nick);
-    //     console.log('Gui toi '+data.sendto);
-    //     if (data.nick == $('#box_name').text() ){
-    //         $('<div class="msg_b"><b>'+data.nick+': </b>'+data.msg+'</div>').insertBefore('.msg_push');
-    //         $('.msg_body').scrollTop($('.msg_body')[0].scrollHeight);
-    //     }else{
-    //         $('<div class="msg_a"><b>'+data.nick+': </b>'+data.msg+'</div>').insertBefore('.msg_push');
-    //         $('.msg_body').scrollTop($('.msg_body')[0].scrollHeight);
-    //     }
-    //
-    // });
+    socket.on('new message', function(data){
+
+        // console.log('Gui tu '+data.nick);
+        // console.log('Gui toi '+data.sendto);
+        // if (data.nick == $('#box_name').text() ){
+        //     $('<div class="msg_b"><b>'+data.nick+': </b>'+data.msg+'</div>').insertBefore('.msg_push');
+        //     $('.msg_body').scrollTop($('.msg_body')[0].scrollHeight);
+        // }else{
+        //     $('<div class="msg_a"><b>'+data.nick+': </b>'+data.msg+'</div>').insertBefore('.msg_push');
+        //     $('.msg_body').scrollTop($('.msg_body')[0].scrollHeight);
+        // }
+        console.log(data);
+    });
 
 });

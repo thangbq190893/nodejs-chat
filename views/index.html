@@ -19,11 +19,12 @@
     <script src="/asset/script.js"></script>
   </head>
   <body>
+  <h1 id="username" style="display: none"></h1>
   <div id="nick-wrap">
 		<p>Tai khoan dang nhap cua ban:</p>
 		<p id="nick-error"></p>
 		<form id="set-nick" name="fname">
-			<input size="35" id="nick-name" name="fvalue">
+			<input id="nick-name" name="fvalue">
 			<input type="submit">
 		</form>
 	</div>
@@ -43,7 +44,9 @@
 		<div class="msg_body">
 			<div class="msg_push"></div>
 		</div>
-	<div class="msg_footer"><textarea class="msg_input" rows="4"></textarea></div>
+	<div class="msg_footer">
+	<input class="msg_input" >
+	</div>
 </div>
 </div>
 </body>
