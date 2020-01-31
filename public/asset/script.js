@@ -1,4 +1,6 @@
 var nickNameCurrent;
+var nicknameReceiver;
+var toUserSid;
 $(document).ready(function(){
     // connect socket
     var socket = io();
@@ -9,7 +11,7 @@ $(document).ready(function(){
         var nickName = $('#nick-name').val().trim();
         nickNameCurrent = nickName;
         // preventDefault không gọi đến submit action form
-        	e.preventDefault();
+        // 	e.preventDefault();
         	// Nếu username trống thì thông báo lỗi chưa điền thông tin tài khoản
         if (nickName == null || nickName === ''){
         	$('#nick-error').html('Ban chua nhap tai khoan');
@@ -51,12 +53,17 @@ $(document).ready(function(){
 
     function usernameClick(){
         $('.user').click(function(){
-            // console.log('Hello');
+
             // $(this) chính là $('.user')
-            console.log($(this).text()); // User name
             $('.msg_box').show();
+
+            // set ten cho khung chat
             $('#box_name').text($(this).text());
-            socket.emit('open-chatbox', {from: nickNameCurrent, to: $(this).attr('name')});
+            // lay socket id cua receiverUser
+            toUserSid = $(this).attr('name');
+            // lay ten cua receiverUser
+            nicknameReceiver = $(this).text();
+            socket.emit('open-chatbox',{sendUser:{id:socket.id , name: nickNameCurrent}, receiverUser: {id:toUserSid , name: nicknameReceiver}});
             console.log($(this).attr('name'))
         });
     }
@@ -65,17 +72,12 @@ $(document).ready(function(){
 
     // Nhận danh sách các nickname đang online từ server
     socket.on('usernames', function(data){
-        // console.log(nickNameCurrent);
-        console.log('user: ', data, socket.id);
         indexCurrentUser = data.findIndex(x => x.id === socket.id);
-        console.log(indexCurrentUser);
         data.splice(indexCurrentUser, 1);
         var html = '';
         for (i=0; i<data.length; i++){
             html +='<div class="user" name="'+ data[i].id+'">'+ data[i].name+'</div>';
         }
-
-        // console.log(html);
         $('.chat_body').html(html);
         usernameClick();
     });
@@ -100,21 +102,18 @@ $(document).ready(function(){
 // 			');
 
     // });
-    $('.msg_input').keypress(function(e){
+    $(".msg_input").keypress(function(e){
         // e.preventDefault();
 
         if (e.keyCode == 13) {
             var msg = $(this).val();
             $(this).val('');
-            socket.emit('send message', msg);
-            // console.log('okokokokokok')
+            socket.emit('send message', msg, toUserSid);
+            console.log(toUserSid);
         }
     });
     //
     socket.on('new message', function(data){
-
-        console.log('tin nhắn từ server về');
-        console.log('Gui tu '+data.nick);
         if (data.nick == $('#box_name').text() ){
             $('<div class="msg_b"><b>'+data.nick+': </b>'+data.msg+'</div>').insertBefore('.msg_push');
             $('.msg_body').scrollTop($('.msg_body')[0].scrollHeight);
@@ -122,7 +121,7 @@ $(document).ready(function(){
             $('<div class="msg_a"><b>'+data.nick+': </b>'+data.msg+'</div>').insertBefore('.msg_push');
             $('.msg_body').scrollTop($('.msg_body')[0].scrollHeight);
         }
-        console.log(data);
     });
 
 });
+

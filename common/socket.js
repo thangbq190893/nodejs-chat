@@ -1,20 +1,17 @@
-var users = new Array();
-// var user = {
-//     id: String,
-//     name: String
-// };
-// var rooms = ['roomA', 'roomB'];
+var users = ['a', 'b'];
 var i = users.length;
 module.exports = {
     configure: function (io) {
+        var roomName = 'roomA';
         io.on('connection', function (socket) {
             socket.on('new user', function (name, data) {
-                var showRooms;
-                socket.join('roomA', () => {
+
+                // Khi join 1 room tại đây thì lấy được danh sách client trong room
+                socket.join(roomName, () => {
                     showRooms = Object.keys(socket.rooms);
-                    // console.log(showRooms);
-                    io.in('roomA').clients((err, clist) => {
-                        // console.log(clist);
+                    console.log(showRooms);
+                    io.in(roomName).clients((err, clist) => {
+                        console.log('list client : ', clist);
                     })
                 });
 
@@ -23,54 +20,46 @@ module.exports = {
                 } else {
                     data(true);
                     socket.id = name;
-                    console.log(socket.client.id);
-                    const user = {
+
+                    // id socket của người dùng
+                    // console.log(socket.client.id);
+
+                    user = {
                         id: socket.client.id,
                         name: name
                     };
-                    // user.id = socket.client.id;
-                    // user.name = name;
-                    // users[i].id = socket.client.id;
-                    console.log(i);
+
                     users[i] = user;
                     updateNickName();
                     i++;
                 }
             });
 
-            function updateNickName() {
-                // Truyền danh sách người online đến client
-                console.log('users : ', users);
-                // console.log(io.sockets.adapter.rooms[rooms[0]]);
-                io.sockets.emit('usernames', Object.values(users));
-            }
-
             socket.on('open-chatbox', function (data) {
-                // var showRooms;
-                // socket.join('roomA', () => {
+
+                // Khi join 1 room tại đây thì danh sách client trong room trả về null
+                // socket.join(roomName, () => {
                 //     showRooms = Object.keys(socket.rooms);
-                //     // console.log(showRooms);
+                //     console.log(socket.rooms);
+                //     io.in('roomA').clients((err, clist) => {
+                //         console.log('list client : ', io.sockets.adapter);
+                //     })
                 // });
-                // console.log(io.sockets.adapter.rooms[rooms[0]]);
-                // io.sockets.clients();
-                socket.on('send message', function (msg, to) {
-                    // console.log(showRooms);
+
+                socket.on('send message', function (msg, toUser) {
+
                     // lấy tất cả room mà socket đó join
                     // let roomIds = socket.rooms;
-                    console.log('đã nhận được tin nhắn từ client');
+
+                    // gửi tin nhắn đến chnhs người dùng đấy
                     // socket.emit('new message', msg);
-                    io.in("roomA").emit('new message', {msg: msg, nick: socket.id});
-                    // if (to === data.to) {
-                    //
-                    //     // console.log(Object.values(socket.rooms)[0]);
-                    //     io.in(rooms[0]).emit('new message', msg)
-                    //     // io.sockets.emit('new message', msg)
-                    // }
+
+                    // gửi tin nhắn đến người dùng được chọn
+                    // socket.to(toUser).emit('new message', {msg: msg, nick: socket.id});
+
+                    // gửi tin nhắn đến phòng mà người gửi tham gia đang chọn
+                    io.in(roomName).emit('new message', {msg: msg, nick: socket.id});
                 })
-
-                // users[sendto].emit('new message', {msg: data, nick: socket.nickname, sendto: sendto});
-                // users[socket.nickname].emit('new message', {msg: data, nick: socket.nickname, sendto: sendto});
-
             });
 
             socket.on('disconnect', function (data) {
@@ -86,7 +75,23 @@ module.exports = {
                 i = users.length;
                 updateNickName();
             });
+
+            function updateNickName() {
+                // Truyền danh sách người online đến client
+                // console.log('users : ', users);
+                io.sockets.emit('usernames', Object.values(users));
+            }
         });
 
     }
 };
+/* data = {
+      sendUser: {
+          id: socket.id,
+          name: nickNameCurrent
+      },
+      receiverUser: {
+          id: toUserSid,
+          name: nicknameReceiver
+      }
+  }; */
