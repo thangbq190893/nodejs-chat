@@ -48,6 +48,7 @@ module.exports = {
         });
 
         app.post('/api/login', function (req, res) {
+            console.log(req);
             Auth.login(req, res);
         })
     }

@@ -3,7 +3,7 @@ var nicknameReceiver;
 var toUserSid;
 $(document).ready(function(){
     // connect socket
-    var socket = io();
+    var socket = io({path: '/nodejs-angular'});
     // sockt id of this client is socket.id
     // const socket = io('http://localhost')(4200);
     $('#set-nick').submit(function(e){

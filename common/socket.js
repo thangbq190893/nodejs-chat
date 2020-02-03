@@ -2,16 +2,17 @@ var users = ['a', 'b'];
 var i = users.length;
 module.exports = {
     configure: function (io) {
+
         var roomName = 'roomA';
         io.on('connection', function (socket) {
             socket.on('new user', function (name, data) {
 
                 // Khi join 1 room tại đây thì lấy được danh sách client trong room
-                socket.join(roomName, () => {
+                socket.join(roomName = 'roomB', () => {
                     showRooms = Object.keys(socket.rooms);
-                    console.log(showRooms);
+                    // console.log(showRooms);
                     io.in(roomName).clients((err, clist) => {
-                        console.log('list client : ', clist);
+                        // console.log('list client : ', clist, roomName);
                     })
                 });
 
@@ -63,7 +64,7 @@ module.exports = {
             });
 
             socket.on('disconnect', function (data) {
-                console.log('socket.id :    ', socket.id)
+                // console.log('socket.id :    ', socket.id)
                 if (!socket.id) return;
                 let indexUser = users.findIndex(x => x.name == socket.id);
                 if (indexUser !== -1) {
