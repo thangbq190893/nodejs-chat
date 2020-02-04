@@ -48,7 +48,7 @@ module.exports = {
         });
 
         app.post('/api/login', function (req, res) {
-            console.log(req);
+            console.log(req.body);
             Auth.login(req, res);
         })
     }
