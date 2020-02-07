@@ -1,4 +1,6 @@
-var connection = require('../common/connection');
+var connection = require('./connection');
+
+// Require thư viện bcrypt và jwt để tạo token mà không cần oauth2
 var bcrypt = require('bcrypt-nodejs');
 const jwt = require('jsonwebtoken');
 

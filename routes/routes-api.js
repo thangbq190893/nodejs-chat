@@ -1,5 +1,5 @@
 var User = require('../Models/user');
-var Auth = require('../Models/auth');
+var Auth = require('../common/auth');
 
 // FORMAT OF TOKEN
 // Authorization: Beerer <access_token>

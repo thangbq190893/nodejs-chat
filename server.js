@@ -1,4 +1,8 @@
 const express = require('express');
+// Require thư viện passport dùng để triển khai xác thực oauth2
+const passport = require('passport');
+// Require thư viện dùng để xác thực google với chuẩn oauth2
+const GoogleStratety = require('passport-google-oauth2').Strategy;
 const app = express();
 const bodyparser = require('body-parser');
 const server = require('http').Server(app);
