@@ -1,0 +1,3 @@
+https://www.youtube.com/channel_switcher?next=%2Faccount&feature=settings
+var crNew = document.getElementById('ytcc-existing-channels').getElementsByTagName('li')[0].getElementsByTagName('a')[0].click();
+var ip = document.getElementById('PlusPageName'); ip.value = 'chanel 1';var sm = document.getElementById('submitbutton');sm.click();
